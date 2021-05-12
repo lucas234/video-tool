@@ -345,7 +345,6 @@ class DownloadThread(QtCore.QThread):
         results = self._download()
         for i in results:
             self.process.emit(i)
-
         self.finished.emit(True)
 
     def _download(self):
