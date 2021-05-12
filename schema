@@ -1,0 +1,29 @@
+create table IF NOT EXISTS setting(
+    id integer PRIMARY KEY autoincrement,
+    modes integer,
+    path varchar,
+    concurrency_num integer,
+    theme_style varchar,
+    create_date datetime default (datetime('now', 'localtime')),
+    update_date datetime
+);
+
+create table IF NOT EXISTS resource(
+    id integer PRIMARY KEY autoincrement,
+    name varchar not null,
+    data JSON,
+    expire varchar,
+    isActive bool default (1),
+    createDate datetime default (datetime('now', 'localtime')),
+    updateDate datetime
+);
+
+
+-- 用来重命名已有的表的 ALTER TABLE 的基本语法如下：
+ALTER TABLE resource RENAME TO resource;
+-- 用来在已有的表中添加一个新的列的 ALTER TABLE 的基本语法如下：
+ALTER TABLE resource ADD COLUMN cache_sig varchar;
+
+-- 插入语句
+insert into resource(name,data,cache_sig) values('哪吒3', 'test', '12123213')
+insert into resource values(3, '哪吒3', 'test', '','', '')
