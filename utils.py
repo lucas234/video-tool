@@ -191,6 +191,10 @@ def get_icon_dir(icon):
     return str(Path(__file__).parent.joinpath("assets", icon))
 
 
+def get_downloads_dir():
+    return Path('~').expanduser().joinpath("Downloads")
+
+
 @timer
 def is_valid_m3u8_url(url):
     """通过urllib 校验，可能会多耗费时间"""

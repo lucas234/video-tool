@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, QSize
 import os
 from PyQt5.QtGui import QPalette, QColor
 from ui_style import header_style, table_data_style
-from utils import get_icon_dir, Constant
+from utils import get_icon_dir, Constant, get_downloads_dir
 from search_download import SearchResults, DownloadM3u8
 
 # dark mode
@@ -335,11 +335,13 @@ class DownloadThread(QtCore.QThread):
     process = QtCore.pyqtSignal(object)
     finished = QtCore.pyqtSignal(object)
 
-    def __init__(self, parent=None, url=None, name=None):
+    def __init__(self, parent=None, url=None, name=None, episode=None, download_path = None):
         super(DownloadThread, self).__init__(parent)
         # 传入搜索关键字
         self.url = url
         self.name = name
+        self.episode = episode
+        self.download_path = download_path if download_path else get_downloads_dir()
 
     def run(self):
         results = self._download()
@@ -348,7 +350,7 @@ class DownloadThread(QtCore.QThread):
         self.finished.emit(True)
 
     def _download(self):
-        results = DownloadM3u8().concurrent_download(8, self.url, self.name)
+        results = DownloadM3u8(self.name, self.download_path).concurrent_download(8, self.url, self.episode)
         return results
 
 

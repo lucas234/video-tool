@@ -10,12 +10,13 @@ from concurrent.futures import ThreadPoolExecutor as Pool
 from functools import partial
 from pathlib import Path
 import json
-from utils import str_2_date, store_data, memorize
+from utils import str_2_date, store_data, memorize, get_downloads_dir
 
 # https://realpython.com/python-concurrency/
 # 屏蔽warning信息
 requests.packages.urllib3.disable_warnings()
 root_dir = Path(__file__).parent
+ROOT_DIR = get_downloads_dir()
 
 
 class SearchResults(object):
@@ -60,6 +61,9 @@ class DownloadM3u8(object):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) "
                              "AppleWebKit/537.36 (KHTML, like Gecko) "
                              "Chrome/69.0.3497.92 Safari/537.36"}
+    def __init__(self, name, download_path=ROOT_DIR):
+        self.name = name
+        self.download_path = download_path
 
     def get_ts_urls(self, url: str) -> list:
         urls = []
@@ -87,9 +91,9 @@ class DownloadM3u8(object):
 
     def download(self, fragment: dict, episodes: str) -> bool:
         filename, url = fragment.values()
-        episodes_dir = root_dir.joinpath(episodes)
-        episodes_dir.mkdir(exist_ok=True)
-        file_path = episodes_dir.joinpath(filename)
+        # episodes_dir = root_dir.joinpath(self.name, episodes)
+        # episodes_dir.mkdir(parents=True,exist_ok=True)
+        file_path = self.episodes_dir.joinpath(filename)
         response = requests.get(url, stream=True, verify=False)
         file_size = int(response.headers['Content-Length'])
         if os.path.exists(file_path):
@@ -117,12 +121,12 @@ class DownloadM3u8(object):
         #     print(x.result())
         results = []
         urls = self.get_ts_urls(url)
-        episodes_dir = root_dir.joinpath(episodes)
-        episodes_dir.mkdir(exist_ok=True)
-        init_num = len(list(episodes_dir.iterdir()))
+        self.episodes_dir = self.download_path.joinpath(self.name, episodes)
+        self.episodes_dir.mkdir(parents=True,exist_ok=True)
+        init_num = len(list(self.episodes_dir.iterdir()))
         init_num = init_num - 3 if init_num >= 3 else init_num
         # 保存到数据库
-        store_data("", episodes, url, init_num, len(urls), True)
+        store_data(self.name, episodes, url, init_num, len(urls), True)
         for result in pool.map(partial(self.download, episodes=episodes), urls[init_num:]):
             results.append(result)
             if not result:
@@ -132,11 +136,12 @@ class DownloadM3u8(object):
 if __name__ == "__main__":
     pass
     # 测试搜索
-    print(SearchResults("哪吒").results)
+    # print(SearchResults("哪吒").results)
     # print(SearchResults("山海情").get_json())
-
-    # 测试下载
-    # test = "https://n1.szjal.cn/20210402/SSYsYCRM/index.m3u8"
-    # d = DownloadM3u8()
-    # for i in d.concurrent_download(8, test, "哪吒"):
-    #     print(i)
+    #测试下载
+    # 山海情 https://v5.szjal.cn/20210112/uEqxa53j/index.m3u8  https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8
+    # url = "https://n1.szjal.cn/20210402/SSYsYCRM/index.m3u8" # 哪吒
+    url = "https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8"
+    d = DownloadM3u8("山海情", root_dir)
+    for i in d.concurrent_download(4, url, "第2集"):
+        print(i)

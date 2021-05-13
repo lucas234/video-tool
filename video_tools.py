@@ -21,7 +21,7 @@ global download_list_data
 download_list_data = get_download_list()
 
 
-def download_task(self, url, episode):
+def download_task(self, name, url, episode):
     process = get_process(url)
     global count
     count = 0
@@ -51,7 +51,9 @@ def download_task(self, url, episode):
         # todo 将下载的片段合并并删除掉片段
         # merge_file()
 
-    self.task_thread = DownloadThread(url=url, name=episode)
+    self.task_thread = DownloadThread(url=url, name=name, episode=episode)
+    # print(self.task_thread.currentThreadId())
+    # print(self.task_thread.terminate())
     self.task_thread.process.connect(store)
     self.task_thread.finished.connect(after_download_complete)
     self.task_thread.start()
@@ -493,14 +495,14 @@ class VideoToolsUi(QMainWindow):
             # 显示选中行的数据文本
             url = table_widget.item(row_num, 2).text()
             episode = table_widget.item(row_num, 1).text()
+            result_table_row = self.result_table.currentRow()
+            name = self.result_table.item(result_table_row, 1).text()
 
             if action == download_all:
                 print('你选了{下载所有}：', url)
-                r = self.result_table.currentRow()
-                print(self.result_table.item(r, 1).text())
             if action == download:
                 print('你选了{下载}：', episode, url)
-                download_task(self, url, episode)
+                download_task(self, name, url, episode)
             if action == play:
                 print('你选了{播放}：', url)
                 play_task(self, link=url)
