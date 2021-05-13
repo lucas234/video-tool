@@ -191,7 +191,7 @@ def get_icon_dir(icon):
     return str(Path(__file__).parent.joinpath("assets", icon))
 
 
-def get_downloads_dir():
+def downloads_dir():
     return Path('~').expanduser().joinpath("Downloads")
 
 
@@ -281,6 +281,12 @@ def get_download_list():
     return {i[3]: [i[0], i[1] * 100 // i[2]] for i in res}
 
 
+def get_download_dir():
+    print("从数据库读取下载路径")
+    res = get_db().query("select path from setting")
+    return Path(res[0][0]) if res else downloads_dir()
+
+
 def get_process(url):
     print("从数据库读取下载进度")
     res = get_db().query(f"select downloaded,total,status from downloadList where url='{url}'")
@@ -322,8 +328,7 @@ def init_db():
                     createDate datetime default (datetime('now', 'localtime')),
                     updateDate datetime
                 );"""
-    path = Path('~').expanduser().joinpath('Downloads')
-    insert_setting = f"insert into setting(modes, path, concurrencyNum, themeStyle) values(0, '{path}', 8, 'Fusion')"
+    insert_setting = f"insert into setting(modes, path, concurrencyNum, themeStyle) values(0, '{downloads_dir()}', 8, 'Fusion')"
     con = get_db()
     con.execute(resource)
     con.execute(setting)

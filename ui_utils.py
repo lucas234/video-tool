@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, QSize
 import os
 from PyQt5.QtGui import QPalette, QColor
 from ui_style import header_style, table_data_style
-from utils import get_icon_dir, Constant, get_downloads_dir
+from utils import get_icon_dir, Constant, get_download_dir
 from search_download import SearchResults, DownloadM3u8
 
 # dark mode
@@ -341,7 +341,7 @@ class DownloadThread(QtCore.QThread):
         self.url = url
         self.name = name
         self.episode = episode
-        self.download_path = download_path if download_path else get_downloads_dir()
+        self.download_path = download_path
 
     def run(self):
         results = self._download()

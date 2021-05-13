@@ -10,13 +10,12 @@ from concurrent.futures import ThreadPoolExecutor as Pool
 from functools import partial
 from pathlib import Path
 import json
-from utils import str_2_date, store_data, memorize, get_downloads_dir
+from utils import str_2_date, store_data, memorize, downloads_dir
 
 # https://realpython.com/python-concurrency/
 # 屏蔽warning信息
 requests.packages.urllib3.disable_warnings()
-root_dir = Path(__file__).parent
-ROOT_DIR = get_downloads_dir()
+ROOT_DIR = downloads_dir()
 
 
 class SearchResults(object):
@@ -142,6 +141,6 @@ if __name__ == "__main__":
     # 山海情 https://v5.szjal.cn/20210112/uEqxa53j/index.m3u8  https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8
     # url = "https://n1.szjal.cn/20210402/SSYsYCRM/index.m3u8" # 哪吒
     url = "https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8"
-    d = DownloadM3u8("山海情", root_dir)
+    d = DownloadM3u8("山海情", ROOT_DIR)
     for i in d.concurrent_download(4, url, "第2集"):
         print(i)

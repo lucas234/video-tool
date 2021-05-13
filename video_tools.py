@@ -19,6 +19,7 @@ from ui_utils import *
 init_db()
 global download_list_data
 download_list_data = get_download_list()
+DOWNLOAD_DIR = get_download_dir()
 
 
 def download_task(self, name, url, episode):
@@ -51,9 +52,7 @@ def download_task(self, name, url, episode):
         # todo 将下载的片段合并并删除掉片段
         # merge_file()
 
-    self.task_thread = DownloadThread(url=url, name=name, episode=episode)
-    # print(self.task_thread.currentThreadId())
-    # print(self.task_thread.terminate())
+    self.task_thread = DownloadThread(url=url, name=name, episode=episode, download_path=DOWNLOAD_DIR)
     self.task_thread.process.connect(store)
     self.task_thread.finished.connect(after_download_complete)
     self.task_thread.start()
