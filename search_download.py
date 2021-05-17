@@ -125,7 +125,7 @@ class DownloadM3u8(object):
         init_num = len(list(self.episodes_dir.iterdir()))
         init_num = init_num - 3 if init_num >= 3 else init_num
         # 保存到数据库
-        store_data(self.name, episodes, url, init_num, len(urls), True)
+        store_data(self.name, episodes, url, init_num, len(urls))
         for result in pool.map(partial(self.download, episodes=episodes), urls[init_num:]):
             results.append(result)
             if not result:

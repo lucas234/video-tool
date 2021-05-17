@@ -15,41 +15,46 @@ from ui_style import *
 from utils import *
 from ui_utils import *
 
-
 init_db()
+DOWNLOAD_DIR = get_download_dir()
+update_progress(DOWNLOAD_DIR)
 global download_list_data
 download_list_data = get_download_list()
-DOWNLOAD_DIR = get_download_dir()
 
 
 def download_task(self, name, url, episode):
+
+    def update_download_list(value):
+        global download_list_data
+        origin = download_list_data.get(url, None)
+        if not origin:
+            download_list_data = get_download_list()
+            print(f"更新数据 {download_list_data}")
+
+    def after_download_complete():
+        # status 为2表示下载完成、1表示暂停、0表示正在下载
+        global download_list_data
+        print("更新状态")
+        get_db().execute(f"update downloadList set status=2 where url='{url}'")
+        download_list_data = get_download_list()
+        print("合并片段")
+        # 将下载的片段合并并删除掉片段
+        merge_file(DOWNLOAD_DIR, name, episode)
+        print("合并结束")
+        # QApplication.processEvents()
+
     progress = get_progress(url)
     if progress:
         if progress[2] == 2:
             message_box(f"{episode} 已经下载完成，不要重复下载!")
             return
-
-    def store(value):
-        global download_list_data
-        origin = download_list_data.get(url, None)
-        if origin:
-            status = 2 if origin[2]>=origin[3] else 0
-            download_list_data.update({url: [origin[0], origin[1], origin[2]+value, origin[3], status]})
-        else:
-            data_ = get_progress(url)
-            download_list_data[url] = [data_[3], data_[4], data_[0], data_[1], data_[2]]
-        print(f"更新数据 {download_list_data}")
-        # store_data(url=url, downloaded=value)
-
-    def after_download_complete():
-        # status 为2表示下载完成、1表示暂停、0表示正在下载
-        get_db().execute(f"update downloadList set status=2 where url='{url}'")
-        download_list_data = get_download_list()
-        # todo 将下载的片段合并并删除掉片段
-        # merge_file()
+        if progress[2] == 1:
+            # 状态更新为正在下载
+            get_db().execute(f"update downloadList set status=0 where url='{url}'")
+            print(f"状态更新为正在下载")
 
     self.task_thread = DownloadThread(url=url, name=name, episode=episode, download_path=DOWNLOAD_DIR)
-    self.task_thread.process.connect(store)
+    self.task_thread.process.connect(update_download_list)
     self.task_thread.finished.connect(after_download_complete)
     self.task_thread.start()
 
@@ -85,10 +90,13 @@ class DownloadList(QDialog):
         self.setLayout(self.vbox)
         self.signal.connect(self.realtime_refresh_ui)
 
-    def _format_data(self, dict_data):
+    @staticmethod
+    def _format_data(dict_data):
         all_data = {}
         for key, value in dict_data.items():
-            all_data[key] = [value[0], value[1], value[2] * 100 // value[3], value[4]]
+            downloaded = get_num_of_files(DOWNLOAD_DIR, value[5], value[0])
+            downloaded = value[3] if downloaded == "complete" else downloaded
+            all_data[key] = [f"{value[5]}-{value[0]}", value[1], downloaded * 100 // value[3], value[4]]
         return all_data
 
     def realtime_refresh_ui(self):
@@ -96,8 +104,7 @@ class DownloadList(QDialog):
             return
         all_data = self._format_data(download_list_data)
         data_ = list(all_data.values())
-        print(f"####repaint {download_list_data}")
-        print(f"####repaint {data_}")
+        print(download_list_data)
         if len(self.data) == len(data_):
             self.model._data = data_
             self.download_manage.viewport().repaint()
@@ -105,15 +112,26 @@ class DownloadList(QDialog):
             self.data = data_
             self.model = TableModel(self.data, ('名称', '日期', '下载进度', "操作"))
             self.download_manage.setModel(self.model)
-            # self.download_list_ui()
-            # self.download_manage.show()
         QApplication.processEvents()
+
+    def continue_download(self, value):
+        global download_list_data
+        print(f"继续下载{value}")
+        name, episode, status = value
+        url = [k for k, v in download_list_data.items() if name in v and episode in v][0]
+        if status:
+            get_db().execute(f"update downloadList set status=0 where url='{url}'")
+        else:
+            get_db().execute(f"update downloadList set status=1 where url='{url}'")
+        download_list_data = get_download_list()
+        download_task(self, name, url, episode)
 
     def download_list_ui(self):
         all_data = self._format_data(download_list_data)
         self.data = list(all_data.values())
         if self.data:
             button_delegate = ButtonDelegate(self.download_manage)
+            button_delegate.signal.connect(self.continue_download)
             progress_delegate = ProgressBarDelegate(self.download_manage)
             self.download_manage.setItemDelegateForColumn(2, progress_delegate)
             self.download_manage.setItemDelegateForColumn(3, button_delegate)
@@ -139,33 +157,6 @@ class DownloadList(QDialog):
             self.table_header.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.table_header.horizontalHeader().setStyleSheet(download_header_style)
 
-        def context_menu(pos):
-            table_view = self.download_manage
-            row_num = table_view.currentIndex().row()
-            # column_num = table_view.currentIndex().column()
-            menu = QMenu()
-            download_all = menu.addAction(QIcon(get_icon_dir("download_all.png")), u'全部下载')
-            download = menu.addAction(QIcon(get_icon_dir("download.png")), u'下载')
-            play = menu.addAction(QIcon(get_icon_dir("play.png")), u'播放')
-            delete = menu.addAction(QIcon(get_icon_dir("trash.png")), "删除")
-            action = menu.exec_(table_view.mapToGlobal(pos))
-            # 显示选中行的数据文本
-            url = table_view.model().index(row_num, 0).data()
-            episode = table_view.model().index(row_num, 1).data()
-
-            if action == download_all:
-                print('你选了{全部下载}：', url)
-            if action == download:
-                print('你选了{下载}：', episode, url)
-                # download_task(self, url, episode)
-            if action == play:
-                print('你选了{播放}：', url)
-                # play_task(self, link=url)
-            if action == delete:
-                print('你选了{删除}：', url)
-
-        self.download_manage.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.download_manage.customContextMenuRequested.connect(context_menu)
 
 @singleton
 class M3U8(QDialog):
@@ -233,7 +224,7 @@ class M3U8(QDialog):
         if is_m3u8_url(url):
             print(f"downloading the film: {url}")
             name = datetime.now().strftime("%Y%m%d%H%M%S")
-            download_task(self, url, name)
+            download_task(self, url, name, name)
             self.downloader_input.clear()
         else:
             message_box("请输入有效的M3U8链接!")
@@ -451,7 +442,7 @@ class VideoToolsUi(QMainWindow):
     @staticmethod
     def _open_file():
         print("open file clicked")
-        os.startfile("C:\\")
+        open_dir(DOWNLOAD_DIR)
 
     def _create_menu_bar(self):
         menu_bar = self.menuBar()
