@@ -280,20 +280,7 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_delete.setToolTip("删除")
             btn_delete.setStyleSheet(style)
 
-            # btn_done = QPushButton(self.parent())
-            # btn_done.setIconSize(QSize(20, 20))
-            # btn_done.setIcon(QIcon(get_icon_dir("checkmark.svg")))
-            # btn_done.index = [index.row(), index.column()]
-            # # btn_done.clicked.connect(clicked_start_pause)
-            # btn_done.setToolTip("下载完成")
-            # btn_done.setStyleSheet(style)
-            # btn_done.setDisabled(True)
-
             h_box_layout = QHBoxLayout()
-            # if index.data() == 2:
-            #     h_box_layout.addWidget(btn_done)
-            # else:
-            #     h_box_layout.addWidget(btn_start_pause)
             h_box_layout.addWidget(btn_start_pause)
             h_box_layout.addWidget(btn_delete)
             h_box_layout.addWidget(btn_folder)
