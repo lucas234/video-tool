@@ -171,7 +171,9 @@ def memorize(duration=-1):
             # 存储结果到内存存、数据库中
             _set_cache(key, result, *args)
             return result
+
         return __memoize
+
     return _memoize
 
 
@@ -193,6 +195,10 @@ def get_icon_dir(icon):
 
 def downloads_dir():
     return Path('~').expanduser().joinpath("Downloads")
+
+
+def get_num_of_files(*folder):
+    return len(list(downloads_dir().joinpath(*folder).iterdir()))
 
 
 @timer
@@ -218,6 +224,7 @@ def is_m3u8_url(url):
         r'(?:/?|[/?]\S+)\.m3u8$', re.IGNORECASE)
     return True if url and regex.search(url) else False
 
+
 @timer
 def merge_file2(path_, filename, format="mp4"):
     r"""
@@ -240,6 +247,7 @@ def file_walker(_download_path):
             _path = os.path.join(root, file)
             file_list.append(_path)
     return file_list
+
 
 @timer
 def merge_file(path_, filename, format="mp4"):
@@ -267,7 +275,7 @@ def store_data(name=None, episode=None, url=None, downloaded=None, total=None, b
         if begin:
             update_sql = f"update downloadList set downloaded='{downloaded}' where url='{url}'"
         else:
-            update_sql = f"update downloadList set downloaded='{downloaded+result[0][0]}' where url='{url}'"
+            update_sql = f"update downloadList set downloaded='{downloaded + result[0][0]}' where url='{url}'"
         print("更新了数据")
         con.execute(update_sql)
     else:
@@ -277,8 +285,8 @@ def store_data(name=None, episode=None, url=None, downloaded=None, total=None, b
 
 def get_download_list():
     print("从数据库读取下载列表")
-    res = get_db().query("select episode,downloaded,total,url from downloadList")
-    return {i[3]: [i[0], i[1] * 100 // i[2]] for i in res}
+    res = get_db().query("select episode,downloaded,total,url,status,createDate from downloadList")
+    return {i[3]: [i[0], str_2_date(i[5]), i[1], i[2], i[4]] for i in res}
 
 
 def get_download_dir():
@@ -287,13 +295,14 @@ def get_download_dir():
     return Path(res[0][0]) if res else downloads_dir()
 
 
-def get_process(url):
+def get_progress(url):
     print("从数据库读取下载进度")
-    res = get_db().query(f"select downloaded,total,status from downloadList where url='{url}'")
+    res = get_db().query(f"select downloaded,total,status,episode,createDate from downloadList where url='{url}'")
     if res:
-        return res[0][0], res[0][1], res[0][2]
+        return res[0]
 
 
+@timer
 def init_db():
     download_list = """
                 create table IF NOT EXISTS downloadList(
@@ -336,11 +345,23 @@ def init_db():
     if not con.query("select * from setting"):
         con.execute(insert_setting)
 
-    # 将所有正在下载的任务状态改为1暂定（0->1）
-    data = con.query("select id from downloadList where status=0")
+    # # 将所有正在下载的任务状态改为1暂停（0->1）
+    # data = con.query("select id from downloadList where status=0")
+    # if data:
+    #     sql = f"update downloadList set status=1 where id in ({','.join(str(i[0]) for i in data)})"
+    #     con.execute(sql)
+
+    # 读取本地文件获取下载进度更新到数据库,并将所有正在下载的任务状态改为1暂停（0->1）
+    data = con.query("select name, episode, downloaded, total, status,id from downloadList where status in (0, 1)")
     if data:
-        sql = f"update downloadList set status=1 where id in ({','.join(str(i[0]) for i in data)})"
-        con.execute(sql)
+        for i in data:
+            downloaded = get_num_of_files(i[0], i[1])
+            if downloaded >= i[3]:
+                status = 2
+            else:
+                status = 1
+            sql = f"update downloadList set status={status}, downloaded={downloaded} where id={i[5]}"
+            con.execute(sql)
 
 
 @memorize(300000)
@@ -353,10 +374,12 @@ def a_hard_function(a):
 
 if __name__ == "__main__":
     sq = "insert into resource(name,data) values('哪吒', '12123213')"
-    # s = get_db()
+    s = get_db()
     # init_db()
     # s.execute(sq)
-    # print(s.query("select * from downloadList"))
+    print(s.query("select * from downloadList"))
+
+    # print(s.execute("delete from downloadList"))
     # data = s.query("select id from downloadList where status=2")
     # print(data)
     # print(s.execute("delete from downloadList where id in (4,5,6,7,8,9,10,11)"))

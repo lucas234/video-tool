@@ -5,7 +5,8 @@
 # @Software: PyCharm
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont, QMovie, QMoveEvent
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionProgressBar, \
-    QApplication, QStyle, QMessageBox, QWidget, QAbstractItemView, QMainWindow, QLabel, QHBoxLayout, QDesktopWidget
+    QApplication, QStyle, QMessageBox, QWidget, QAbstractItemView, QMainWindow, QLabel, QHBoxLayout, QDesktopWidget, \
+    QPushButton, QItemDelegate, QToolTip
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QSize
 import os
@@ -180,8 +181,8 @@ class ProgressBarDelegate(QStyledItemDelegate):
         progress = index.data()
         bar_option = QStyleOptionProgressBar()
         bar_option.rect = option.rect
-        bar_option.rect.setHeight(option.rect.height() - 1)
-        bar_option.rect.setTop(option.rect.top() + 1)
+        bar_option.rect.setHeight(option.rect.height() - 5)
+        bar_option.rect.setTop(option.rect.top() + 5)
         bar_option.minimum = 0
         bar_option.maximum = 100
         bar_option.progress = progress
@@ -189,6 +190,108 @@ class ProgressBarDelegate(QStyledItemDelegate):
         bar_option.textVisible = True
         bar_option.textAlignment = Qt.AlignCenter
         QApplication.style().drawControl(QStyle.CE_ProgressBar, bar_option, painter)
+
+
+class ButtonDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent=None):
+        super(ButtonDelegate, self).__init__(parent)
+
+    def paint(self, painter, option, index):
+        # QToolTip.setFont(QFont('Arial', 11))
+
+        def clicked_start_pause():
+            # global image
+            row = index.row()
+            print(self.parent().model().index(0,1).data())
+            print(index.model().index(0,1).data())
+            if index.data():
+                # data[row][2] = 0
+                from video_tools import download_task
+                download_task(self.parent(),"山海情","https://v5.szjal.cn/20210112/uEqxa53j/index.m3u8", "第1集")
+                print("开始任务")
+                image = QIcon(get_icon_dir("pause.svg"))
+                btn_start_pause.setToolTip("暂停")
+            else:
+                print("暂停任务")
+                # data[row][2] = 1
+                image = QIcon(get_icon_dir("start.svg"))
+                btn_start_pause.setToolTip("开始")
+            btn_start_pause.setIcon(image)
+            QApplication.processEvents()
+            # print(index.row())
+            print(index.data())
+            # print(index.model().index(index.row(),0).data())
+
+        if index.data():
+            image = QIcon(get_icon_dir("start.svg"))
+        else:
+            image = QIcon(get_icon_dir("pause.svg"))
+
+        if not self.parent().indexWidget(index):
+            btn_start_pause = QPushButton(self.parent())
+            btn_start_pause.setIconSize(QSize(20, 20))
+            btn_start_pause.setIcon(image)
+            btn_start_pause.index = [index.row(), index.column()]
+            btn_start_pause.clicked.connect(clicked_start_pause)
+            if index.data():
+                btn_start_pause.setToolTip("开始")
+            else:
+                btn_start_pause.setToolTip("暂停")
+            style = """QPushButton{
+                                background-color: none;
+                                border:none;
+                                padding:1px 1px;
+                            }
+                            QPushButton:hover{
+                                padding:1px 1px;
+                                border: 1px solid;
+                                border-color:#49b675;
+                                border-radius:4px
+                            }
+                            """
+            btn_start_pause.setStyleSheet(style)
+            btn_folder = QPushButton(self.parent())
+            btn_folder.setIconSize(QSize(20, 20))
+            btn_folder.setIcon(QIcon(get_icon_dir("folder.svg")))
+            btn_folder.index = [index.row(), index.column()]
+            btn_folder.clicked.connect(clicked_start_pause)
+            btn_folder.setToolTip("打开所在文件夹")
+            # 显示图片
+            # btn_folder.setToolTip('<img src="../assets/close.svg">')
+            btn_folder.setStyleSheet(style)
+
+            btn_delete = QPushButton(self.parent())
+            btn_delete.setIconSize(QSize(20, 20))
+            btn_delete.setIcon(QIcon(get_icon_dir("close.svg")))
+            btn_delete.index = [index.row(), index.column()]
+            btn_delete.clicked.connect(clicked_start_pause)
+            btn_delete.setToolTip("删除")
+            btn_delete.setStyleSheet(style)
+
+            btn_done = QPushButton(self.parent())
+            btn_done.setIconSize(QSize(20, 20))
+            btn_done.setIcon(QIcon(get_icon_dir("checkmark.svg")))
+            btn_done.index = [index.row(), index.column()]
+            # btn_done.clicked.connect(clicked_start_pause)
+            btn_done.setToolTip("下载完成")
+            btn_done.setStyleSheet(style)
+            btn_done.setDisabled(True)
+
+            h_box_layout = QHBoxLayout()
+            if index.data() == 2:
+                h_box_layout.addWidget(btn_done)
+            else:
+                h_box_layout.addWidget(btn_start_pause)
+
+            h_box_layout.addWidget(btn_delete)
+            h_box_layout.addWidget(btn_folder)
+            h_box_layout.setContentsMargins(0, 0, 0, 0)
+            h_box_layout.setAlignment(Qt.AlignCenter)
+            widget = QWidget()
+            widget.setFixedWidth(105)
+            widget.setLayout(h_box_layout)
+            self.parent().setIndexWidget(index, widget)
 
 
 def message_box(text):
@@ -223,7 +326,7 @@ class Table(QWidget):
 
 
 class TableModel(QtCore.QAbstractTableModel):
-    HORIZONTAL_HEAD_DATA = ('名称', '下载进度')
+    HORIZONTAL_HEAD_DATA = ('名称', '下载进度', "操作")
     VERTICAL_HEAD_DATA = (1, 2)
 
     def __init__(self, data, header=HORIZONTAL_HEAD_DATA):

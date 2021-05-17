@@ -7,8 +7,8 @@
 from PyQt5.QtWidgets import QVBoxLayout, QAction, QTableView, QTabWidget, \
     QFormLayout, QComboBox, QCheckBox, QDialog, QDialogButtonBox, QSpinBox, \
     QStyleFactory, QLineEdit, QPushButton, QTableWidget, QMenu, QFileDialog, \
-    QTableWidgetItem
-from PyQt5.QtCore import QDir, QUrl, QTimer
+    QTableWidgetItem, QHeaderView
+from PyQt5.QtCore import QDir, QUrl, QTimer, pyqtSignal
 from PyQt5.QtGui import QDesktopServices, QBrush, QColor
 import sys
 from ui_style import *
@@ -23,27 +23,23 @@ DOWNLOAD_DIR = get_download_dir()
 
 
 def download_task(self, name, url, episode):
-    process = get_process(url)
-    global count
-    count = 0
-    if process:
-        downloaded, total, status = process
-        if status == 2:
+    progress = get_progress(url)
+    if progress:
+        if progress[2] == 2:
             message_box(f"{episode} 已经下载完成，不要重复下载!")
             return
 
     def store(value):
         global download_list_data
-        global count
         origin = download_list_data.get(url, None)
-        if origin and process:
-            count += value
-            temp = downloaded + count
-            percent = temp * 100 // total if temp < total else 100
-            download_list_data.update({url: [origin[0], percent]})
+        if origin:
+            status = 2 if origin[2]>=origin[3] else 0
+            download_list_data.update({url: [origin[0], origin[1], origin[2]+value, origin[3], status]})
         else:
-            download_list_data = get_download_list()
-        store_data(url=url, downloaded=value)
+            data_ = get_progress(url)
+            download_list_data[url] = [data_[3], data_[4], data_[0], data_[1], data_[2]]
+        print(f"更新数据 {download_list_data}")
+        # store_data(url=url, downloaded=value)
 
     def after_download_complete():
         # status 为2表示下载完成、1表示暂停、0表示正在下载
@@ -60,37 +56,78 @@ def download_task(self, name, url, episode):
 
 @singleton
 class DownloadList(QDialog):
+    signal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setWindowTitle("下载管理")
-        self.setFixedSize(380, 383)
+        self.setWindowTitle("下载列表")
+        self.setFixedSize(414, 400)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowIcon(QIcon(get_icon_dir("logo.gif")))
         self.vbox = QVBoxLayout()
         self.download_manage = QTableView()
+        self.download_manage.verticalHeader().setVisible(False)
+        self.download_manage.setShowGrid(False)
+        self.download_manage.setSelectionMode(QAbstractItemView.NoSelection)
+        self.download_manage.horizontalHeader().setVisible(False)
         self.table_header = QTableWidget(11, 2)
+        self.table_header.horizontalHeader().setVisible(False)
         self.table_header.verticalHeader().setVisible(False)
         self.table_header.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table_header.setHorizontalHeaderLabels(('名称', '下载进度'))
+        # self.table_header.setHorizontalHeaderLabels(('名称', '下载进度'))
         self.download_manage.horizontalHeader().setStyleSheet(download_header_style)
         self.download_manage.verticalHeader().setVisible(False)
         self.download_manage.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.vbox.addWidget(self.download_manage)
+        download_all = QPushButton("全部下载")
+        self.vbox.addWidget(download_all)
+        # self.vbox.addWidget(self.download_manage)
         self.download_list_ui()
         self.setLayout(self.vbox)
+        self.signal.connect(self.realtime_refresh_ui)
+
+    def _format_data(self, dict_data):
+        all_data = {}
+        for key, value in dict_data.items():
+            all_data[key] = [value[0], value[1], value[2] * 100 // value[3], value[4]]
+        return all_data
+
+    def realtime_refresh_ui(self):
+        if not download_list_data:
+            return
+        all_data = self._format_data(download_list_data)
+        data_ = list(all_data.values())
+        print(f"####repaint {download_list_data}")
+        print(f"####repaint {data_}")
+        if len(self.data) == len(data_):
+            self.model._data = data_
+            self.download_manage.viewport().repaint()
+        else:
+            self.data = data_
+            self.model = TableModel(self.data, ('名称', '日期', '下载进度', "操作"))
+            self.download_manage.setModel(self.model)
+            # self.download_list_ui()
+            # self.download_manage.show()
+        QApplication.processEvents()
 
     def download_list_ui(self):
-        self.data = list(download_list_data.values())
+        all_data = self._format_data(download_list_data)
+        self.data = list(all_data.values())
         if self.data:
-            delegate = ProgressBarDelegate(self.download_manage)
-            self.download_manage.setItemDelegateForColumn(1, delegate)
-            self.model = TableModel(self.data, ('名称', '下载进度'))
+            button_delegate = ButtonDelegate(self.download_manage)
+            progress_delegate = ProgressBarDelegate(self.download_manage)
+            self.download_manage.setItemDelegateForColumn(2, progress_delegate)
+            self.download_manage.setItemDelegateForColumn(3, button_delegate)
+            self.model = TableModel(self.data, ('名称', '日期', '下载进度', "操作"))
             self.download_manage.setModel(self.model)
-            self.download_manage.setColumnWidth(0, 150)
-            self.download_manage.setColumnWidth(1, 206)
+            self.download_manage.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.download_manage.setColumnWidth(0, 80)
+            self.download_manage.setColumnWidth(1, 70)
+            self.download_manage.setColumnWidth(2, 120)
+            self.download_manage.setColumnWidth(3, 110)
+            self.vbox.addWidget(self.download_manage)
+            # self.table_header.hide()
         else:
-            self.vbox.removeWidget(self.download_manage)
+            # self.download_manage.hide()
             self.vbox.addWidget(self.table_header)
             no_data = QTableWidgetItem("暂无下载内容")
             no_data.setFont(QFont('verdana', 10, QFont.Black))
@@ -98,8 +135,8 @@ class DownloadList(QDialog):
             no_data.setTextAlignment(Qt.AlignCenter)
             self.table_header.setItem(0, 0, no_data)
             self.table_header.setSpan(0, 0, 15, 3)
-            self.table_header.setColumnWidth(0, 150)
-            self.table_header.setColumnWidth(1, 206)
+            self.table_header.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.table_header.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.table_header.horizontalHeader().setStyleSheet(download_header_style)
 
         def context_menu(pos):
@@ -342,6 +379,14 @@ class VideoToolsUi(QMainWindow):
         super(VideoToolsUi, self).__init__()
         self._init_ui()
 
+    # def closeEvent(self, QCloseEvent):  # real signature unknown; restored from __doc__
+    #     """ closeEvent(self, QCloseEvent) """
+    #     print("#main window更新数据，关闭App")
+    #     print(download_list_data)
+    #     for key, value in download_list_data.items():
+    #         get_db().execute(f"update downloadList set downloaded='{value[2]}',status=1 where url='{key}'")
+    #     print("###############更新完毕")
+
     def _init_ui(self):
         self.setWindowTitle("Video Tools")
         self.setFixedSize(550, 500)
@@ -505,6 +550,7 @@ class VideoToolsUi(QMainWindow):
             if action == play:
                 print('你选了{播放}：', url)
                 play_task(self, link=url)
+                QApplication.processEvents()
             if action == download_list:
                 download_list_dialog = DownloadList(self)
                 download_list_dialog.show()
@@ -570,10 +616,9 @@ class VideoToolsCtrl(object):
                 cell.setTextAlignment(Qt.AlignCenter)
                 self.table_widget.setItem(i, j, cell)
 
-    def real_time_sync_data(self):
-        if self._view.download_list_dialog.data:
-            model = TableModel(list(download_list_data.values()), ("名称", "下载进度"))
-            self._view.download_list_dialog.download_manage.setModel(model)
+    def emit_signal(self):
+        # if self._view.download_list_dialog.data:
+        self._view.download_list_dialog.signal.emit()
 
 
 if __name__ == "__main__":
@@ -583,6 +628,6 @@ if __name__ == "__main__":
     v_ctrl = VideoToolsCtrl(view=ui)
     # 实时刷新下载列表
     timer = QTimer()
-    timer.timeout.connect(v_ctrl.real_time_sync_data)
+    timer.timeout.connect(v_ctrl.emit_signal)
     timer.start(1000)
     sys.exit(video_tools.exec_())
