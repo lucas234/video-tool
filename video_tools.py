@@ -684,4 +684,3 @@ if __name__ == "__main__":
     timer.timeout.connect(v_ctrl.emit_signal)
     timer.start(1000)
     sys.exit(video_tools.exec_())
-

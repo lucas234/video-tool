@@ -122,5 +122,3 @@ spin_box_style = f'''QSpinBox{{ color:gray;font-size:{font_size}px;
                           QSpinBox::hover{{border-color: #00b372;border-width: 1.5px;}}
                         '''
 checkbox_style = "padding: 8px 2px;"
-
-

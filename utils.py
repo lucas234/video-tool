@@ -199,7 +199,7 @@ def downloads_dir():
 
 def get_num_of_files(path_, *folder):
     fragments = Path(path_).joinpath(*folder)
-    file_ =[i.name for i in fragments.parent.glob(f"{folder[-1]}.*")]
+    file_ = [i.name for i in fragments.parent.glob(f"{folder[-1]}.*")]
     if file_:
         return "complete"
     return len(list(Path(path_).joinpath(*folder).iterdir()))

@@ -16,7 +16,6 @@ from ui_style import header_style, table_data_style
 from utils import get_icon_dir, Constant, open_dir, get_download_dir
 from search_download import SearchResults, DownloadM3u8
 
-
 # dark mode
 WHITE = QColor(255, 255, 255)
 BLACK = QColor(0, 0, 0)
@@ -41,6 +40,7 @@ def css_rgb(color, a=False):
 
 class QLightPalette(QPalette):
     """Dark palette for a Qt application meant to be used with the Fusion theme."""
+
     def __init__(self, *__args):
         super().__init__(*__args)
 
@@ -244,9 +244,9 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_start_pause.setIcon(image)
             btn_start_pause.index = [index.row(), index.column()]
             btn_start_pause.clicked.connect(clicked_start_pause)
-            if index.data()==1:
+            if index.data() == 1:
                 btn_start_pause.setToolTip("开始")
-            elif index.data()==0:
+            elif index.data() == 0:
                 btn_start_pause.setToolTip("暂停")
             else:
                 btn_start_pause.setToolTip("下载完成")
@@ -279,8 +279,10 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_delete.setIconSize(QSize(20, 20))
             btn_delete.setIcon(QIcon(get_icon_dir("close.svg")))
             btn_delete.index = [index.row(), index.column()]
+
             def emit_delete_signal():
                 self.delete_signal.emit((name, episode, row, index.data()))
+
             btn_delete.clicked.connect(emit_delete_signal)
             btn_delete.setToolTip("删除")
             btn_delete.setStyleSheet(style)
@@ -452,7 +454,7 @@ class DownloadThread(QtCore.QThread):
     process = QtCore.pyqtSignal(object)
     finished = QtCore.pyqtSignal(object)
 
-    def __init__(self, parent=None, url=None, name=None, episode=None, download_path = None):
+    def __init__(self, parent=None, url=None, name=None, episode=None, download_path=None):
         super(DownloadThread, self).__init__(parent)
         # 传入搜索关键字
         self.url = url
