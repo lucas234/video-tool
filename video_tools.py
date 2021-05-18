@@ -23,7 +23,6 @@ download_list_data = get_download_list()
 
 
 def download_task(self, name, url, episode):
-
     def update_download_list(value):
         global download_list_data
         origin = download_list_data.get(url, None)
@@ -86,6 +85,7 @@ class DownloadList(QDialog):
         self.stop_all = QPushButton("全部暂停")
         self.stop_all.setFont(QFont('Times', 9))
         self.clean_all = QPushButton("清除所有记录")
+        self.clean_all.setToolTip("只删除已完成或者未开始的记录")
         self.clean_all.setFont(QFont('Times', 9))
         if not download_list_data:
             # self.begin_all.setDisabled(True)
@@ -117,11 +117,12 @@ class DownloadList(QDialog):
         reply = msg_box.exec()
         if reply == QMessageBox.AcceptRole:
             print('你选择了删除！')
-            get_db().execute("delete from downloadList")
-            # 处理空的情况
+            get_db().execute("delete from downloadList where status in (1, 2)")
             rows = self.download_manage.model().rowCount()
-            for row in range(rows-1,-1,-1):
-                self.download_manage.model().removeRow(row)
+            for row in range(rows - 1, -1, -1):
+                print(self.download_manage.model().index(row, 3))
+                if list(download_list_data.values())[row][-1]:
+                    self.download_manage.model().removeRow(row)
             download_list_data = get_download_list()
             if not download_list_data:
                 self._disabled_button()
@@ -162,23 +163,27 @@ class DownloadList(QDialog):
     def delete_single(self, value):
         global download_list_data
         print("# delete single record")
-        name, episode, row = value
+        name, episode, row, status = value
         msg_box = warning()
         cb = QCheckBox('删除源文件')
         msg_box.setCheckBox(cb)
         reply = msg_box.exec()
         if reply == QMessageBox.AcceptRole:
             print('你选择了删除！')
-            get_db().execute(f"delete from downloadList where name='{name}' and episode='{episode}'")
-            self.download_manage.model().removeRow(row)
-            download_list_data = get_download_list()
-            if not download_list_data:
-                self._disabled_button()
-            self.text.setText(f"共下载{len(download_list_data.values())}个文件！")
-            if cb.isChecked():
-                print("你勾选了删除本地文件")
-                # 删除本地文件
-                delete_files(DOWNLOAD_DIR, name, episode)
+            # 只可以删除状态为1，2（暂停、下载完成）的
+            if status:
+                get_db().execute(f"delete from downloadList where name='{name}' and episode='{episode}'")
+                self.download_manage.model().removeRow(row)
+                download_list_data = get_download_list()
+                if not download_list_data:
+                    self._disabled_button()
+                self.text.setText(f"共下载{len(download_list_data.values())}个文件！")
+                if cb.isChecked():
+                    print("你勾选了删除本地文件")
+                    # 删除本地文件
+                    delete_files(DOWNLOAD_DIR, name, episode)
+            else:
+                information("不能删除正在下载的任务！")
         if reply == QMessageBox.RejectRole:
             print('你选择了取消！')
 
@@ -679,3 +684,4 @@ if __name__ == "__main__":
     timer.timeout.connect(v_ctrl.emit_signal)
     timer.start(1000)
     sys.exit(video_tools.exec_())
+

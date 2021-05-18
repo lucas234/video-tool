@@ -280,7 +280,7 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_delete.setIcon(QIcon(get_icon_dir("close.svg")))
             btn_delete.index = [index.row(), index.column()]
             def emit_delete_signal():
-                self.delete_signal.emit((name, episode, row))
+                self.delete_signal.emit((name, episode, row, index.data()))
             btn_delete.clicked.connect(emit_delete_signal)
             btn_delete.setToolTip("删除")
             btn_delete.setStyleSheet(style)

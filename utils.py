@@ -211,7 +211,11 @@ def open_dir(path_):
 
 def delete_files(path_, *folder):
     fragments_dir = Path(path_).joinpath(*folder)
-    shutil.rmtree(fragments_dir)
+    file_ = [i for i in fragments_dir.parent.glob(f"{folder[-1]}.*")]
+    if file_:
+        os.unlink(file_[0])
+    else:
+        shutil.rmtree(fragments_dir, ignore_errors=True)
 
 
 @timer
@@ -399,7 +403,8 @@ if __name__ == "__main__":
     # p = Path(__file__).parent
     # merge_file(downloads_dir(), "山海情","第6集")
     # merge_file2(downloads_dir(), "山海情","第4集")
-    store_data("test","第一集","http",23,450)
+    # store_data("test","第一集","http",23,450)
+    delete_files(downloads_dir(), "山海情", "第20集")
 
     # a_hard_function("山海情")
     # a_hard_function("山海情")
