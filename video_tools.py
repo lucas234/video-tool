@@ -46,7 +46,7 @@ def download_task(self, name, url, episode):
     progress = get_progress(url)
     if progress:
         if progress[2] == 2:
-            message_box(f"{episode} 已经下载完成，不要重复下载!")
+            information(f"{episode} 已经下载完成，不要重复下载!")
             return
         if progress[2] == 1:
             # 状态更新为正在下载
@@ -83,12 +83,64 @@ class DownloadList(QDialog):
         self.download_manage.horizontalHeader().setStyleSheet(download_header_style)
         self.download_manage.verticalHeader().setVisible(False)
         self.download_manage.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        download_all = QPushButton("全部下载")
-        self.vbox.addWidget(download_all)
-        # self.vbox.addWidget(self.download_manage)
+        self.hbox = QHBoxLayout()
+        self.text = QLabel(f"共下载{len(download_list_data.values())}个文件！")
+        self.text.setFont(QFont('Times', 10))
+        self.begin_all = QPushButton("全部开始")
+        self.begin_all.setFont(QFont('Times', 9))
+        self.stop_all = QPushButton("全部暂停")
+        self.stop_all.setFont(QFont('Times', 9))
+        self.clean_all = QPushButton("清除所有记录")
+        self.clean_all.setFont(QFont('Times', 9))
+        if not download_list_data:
+            # self.begin_all.setDisabled(True)
+            # self.stop_all.setDisabled(True)
+            # self.clean_all.setDisabled(True)
+            self._disabled_button()
+            self.text.setText("共下载0个文件！")
+        self.begin_all.clicked.connect(self._begin_all)
+        self.stop_all.clicked.connect(self._stop_all)
+        self.clean_all.clicked.connect(self._clean_all)
+        self.hbox.addWidget(self.text)
+        self.hbox.addWidget(self.begin_all)
+        self.hbox.addWidget(self.stop_all)
+        self.hbox.addWidget(self.clean_all)
+        self.vbox.addLayout(self.hbox)
         self.download_list_ui()
         self.setLayout(self.vbox)
         self.signal.connect(self.realtime_refresh_ui)
+
+    def _disabled_button(self):
+        self.begin_all.setDisabled(True)
+        self.stop_all.setDisabled(True)
+        self.clean_all.setDisabled(True)
+
+    def _clean_all(self):
+        print("# click clean all")
+        global download_list_data
+        msg_box = warning()
+        reply = msg_box.exec()
+        if reply == QMessageBox.AcceptRole:
+            print('你选择了删除！')
+            get_db().execute("delete from downloadList")
+            # 处理空的情况
+            rows = self.download_manage.model().rowCount()
+            for row in range(rows):
+                self.download_manage.model().removeRow(row)
+            download_list_data = get_download_list()
+            if not download_list_data:
+                self._disabled_button()
+            self.text.setText(f"共下载{len(download_list_data.values())}个文件！")
+        if reply == QMessageBox.RejectRole:
+            print('你选择了取消！')
+
+    def _begin_all(self):
+        print("# click begin all")
+        information("暂未实现，敬请期待")
+
+    def _stop_all(self):
+        print("# click stop all")
+        information("暂未实现，敬请期待")
 
     @staticmethod
     def _format_data(dict_data):
@@ -104,27 +156,50 @@ class DownloadList(QDialog):
             return
         all_data = self._format_data(download_list_data)
         data_ = list(all_data.values())
-        print(download_list_data)
         if len(self.data) == len(data_):
             self.model._data = data_
             self.download_manage.viewport().repaint()
         else:
             self.data = data_
-            self.model = TableModel(self.data, ('名称', '日期', '下载进度', "操作"))
-            self.download_manage.setModel(self.model)
+            self.download_list_ui()
         QApplication.processEvents()
+
+    def delete_single(self, value):
+        global download_list_data
+        print("# delete single record")
+        name, episode, row = value
+        msg_box = warning()
+        cb = QCheckBox('删除源文件')
+        msg_box.setCheckBox(cb)
+        reply = msg_box.exec()
+        if reply == QMessageBox.AcceptRole:
+            print('你选择了删除！')
+            get_db().execute(f"delete from downloadList where name='{name}' and episode='{episode}'")
+            self.download_manage.model().removeRow(row)
+            download_list_data = get_download_list()
+            if not download_list_data:
+                self._disabled_button()
+            self.text.setText(f"共下载{len(download_list_data.values())}个文件！")
+            if cb.isChecked():
+                print("你勾选了删除本地文件")
+                # 删除本地文件
+                delete_files(DOWNLOAD_DIR, name, episode)
+        if reply == QMessageBox.RejectRole:
+            print('你选择了取消！')
 
     def continue_download(self, value):
         global download_list_data
-        print(f"继续下载{value}")
         name, episode, status = value
         url = [k for k, v in download_list_data.items() if name in v and episode in v][0]
         if status:
+            print(f"继续下载{value}")
             get_db().execute(f"update downloadList set status=0 where url='{url}'")
+            download_task(self, name, url, episode)
         else:
-            get_db().execute(f"update downloadList set status=1 where url='{url}'")
+            # get_db().execute(f"update downloadList set status=1 where url='{url}'")
+            # todo 停止任务
+            pass
         download_list_data = get_download_list()
-        download_task(self, name, url, episode)
 
     def download_list_ui(self):
         all_data = self._format_data(download_list_data)
@@ -132,6 +207,7 @@ class DownloadList(QDialog):
         if self.data:
             button_delegate = ButtonDelegate(self.download_manage)
             button_delegate.signal.connect(self.continue_download)
+            button_delegate.delete_signal.connect(self.delete_single)
             progress_delegate = ProgressBarDelegate(self.download_manage)
             self.download_manage.setItemDelegateForColumn(2, progress_delegate)
             self.download_manage.setItemDelegateForColumn(3, button_delegate)
@@ -143,7 +219,7 @@ class DownloadList(QDialog):
             self.download_manage.setColumnWidth(2, 120)
             self.download_manage.setColumnWidth(3, 110)
             self.vbox.addWidget(self.download_manage)
-            # self.table_header.hide()
+            self.table_header.hide()
         else:
             # self.download_manage.hide()
             self.vbox.addWidget(self.table_header)
@@ -227,7 +303,7 @@ class M3U8(QDialog):
             download_task(self, url, name, name)
             self.downloader_input.clear()
         else:
-            message_box("请输入有效的M3U8链接!")
+            information("请输入有效的M3U8链接!")
 
     def _play(self):
         player = self.player_combobox.currentText()
@@ -242,7 +318,7 @@ class M3U8(QDialog):
                 QDesktopServices.openUrl(QUrl(url.strip()))
             self.play_input.clear()
         else:
-            message_box("请输入有效的M3U8链接!")
+            information("请输入有效的M3U8链接!")
 
 
 @singleton
@@ -466,7 +542,7 @@ class VideoToolsUi(QMainWindow):
         self.players.addActions([self.vlc])
         file_menu.addActions([self.settings, self.download_list, self.open_file])
         help_menu.addActions([self.help, self.version])
-        self.version.triggered.connect(lambda: message_box("当前版本 1.0 "))
+        self.version.triggered.connect(lambda: information("当前版本 1.0 "))
         self.open_file.triggered.connect(self._open_file)
         self.download_list.triggered.connect(self._download_list)
         self.m3u8.triggered.connect(self._m3u8)
@@ -571,7 +647,7 @@ class VideoToolsCtrl(object):
         def search_function():
             keyword = self._view.search_input.text()
             if not keyword:
-                message_box("请输入要搜索的影片名")
+                information("请输入要搜索的影片名")
             else:
                 # 添加loading效果
                 self.loading = LoadingMask(self._view, get_icon_dir("loading.gif"))
@@ -581,7 +657,7 @@ class VideoToolsCtrl(object):
                     self.data = result
                     if not self.data:
                         self._view.search_input.clear()
-                        message_box("未搜到影片, 请重新输入新的影片名")
+                        information("未搜到影片, 请重新输入新的影片名")
                     _display_search_results()
 
                 self.search_thread = SearchThread(handle_result, keyword=keyword)

@@ -6,7 +6,7 @@
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont, QMovie, QMoveEvent
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionProgressBar, \
     QApplication, QStyle, QMessageBox, QWidget, QAbstractItemView, QMainWindow, QLabel, QHBoxLayout, QDesktopWidget, \
-    QPushButton, QItemDelegate, QToolTip
+    QPushButton, QItemDelegate, QToolTip, QCheckBox
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 import os
@@ -196,17 +196,17 @@ class ProgressBarDelegate(QStyledItemDelegate):
 
 class ButtonDelegate(QStyledItemDelegate):
     signal = pyqtSignal(object)
+    delete_signal = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(ButtonDelegate, self).__init__(parent)
 
     def paint(self, painter, option, index):
         # QToolTip.setFont(QFont('Arial', 11))
+        row = index.row()
+        name, episode = index.model().index(row, 0).data().split("-")
 
         def clicked_start_pause():
-            # global image
-            row = index.row()
-            name,episode = index.model().index(row,0).data().split("-")
             if index.data() == 1:
                 self.signal.emit((name, episode, index.data()))
                 print("开始任务")
@@ -215,9 +215,12 @@ class ButtonDelegate(QStyledItemDelegate):
             elif index.data() == 0:
                 self.signal.emit((name, episode, index.data()))
                 print("暂停任务")
-                # data[row][2] = 1
-                image = QIcon(get_icon_dir("start.svg"))
-                btn_start_pause.setToolTip("开始")
+                # image = QIcon(get_icon_dir("start.svg"))
+                # btn_start_pause.setToolTip("开始")
+
+                image = QIcon(get_icon_dir("pause.svg"))
+                btn_start_pause.setToolTip("暂未实现，敬请期待。")
+                btn_start_pause.setDisabled(True)
             else:
                 image = QIcon(get_icon_dir("checkmark.svg"))
                 btn_start_pause.setToolTip("下载完成")
@@ -225,7 +228,7 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_start_pause.setIcon(image)
             QApplication.processEvents()
             # print(index.row())
-            print(index.data())
+            # print(index.data())
             # print(index.model().index(index.row(),0).data())
 
         if index.data() == 1:
@@ -276,7 +279,9 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_delete.setIconSize(QSize(20, 20))
             btn_delete.setIcon(QIcon(get_icon_dir("close.svg")))
             btn_delete.index = [index.row(), index.column()]
-            # btn_delete.clicked.connect()
+            def emit_delete_signal():
+                self.delete_signal.emit((name, episode, row))
+            btn_delete.clicked.connect(emit_delete_signal)
             btn_delete.setToolTip("删除")
             btn_delete.setStyleSheet(style)
 
@@ -292,12 +297,23 @@ class ButtonDelegate(QStyledItemDelegate):
             self.parent().setIndexWidget(index, widget)
 
 
-def message_box(text):
-    message_box_ = QMessageBox()
-    message_box_.setText(text)
-    message_box_.setWindowTitle("提示")
-    message_box_.setWindowIcon(QIcon(get_icon_dir("information.png")))
-    message_box_.exec_()
+def information(text):
+    message_box = QMessageBox()
+    message_box.setText(text)
+    message_box.setWindowTitle("提示")
+    message_box.setWindowIcon(QIcon(get_icon_dir("information.png")))
+    message_box.exec_()
+
+
+def warning():
+    msg_box = QMessageBox()
+    msg_box.setWindowTitle('警告')
+    msg_box.setWindowIcon(QIcon(get_icon_dir("warning.png")))
+    msg_box.setText('是否删除下载记录？')
+    yes = msg_box.addButton('确定', QMessageBox.AcceptRole)
+    msg_box.addButton('取消', QMessageBox.RejectRole)
+    msg_box.setDefaultButton(yes)
+    return msg_box
 
 
 class Table(QWidget):
@@ -395,7 +411,7 @@ class TableModel(QtCore.QAbstractTableModel):
         """
         if value:
             self.beginInsertRows(index, row, row)
-            self.table_data.insert(row, value)
+            self._data.insert(row, value)
             self.endInsertRows()
 
     def removeRow(self, row, index=QtCore.QModelIndex()):
@@ -405,7 +421,7 @@ class TableModel(QtCore.QAbstractTableModel):
         :return:
         """
         self.beginRemoveRows(index, row, row)
-        self.table_data.pop(row)
+        self._data.pop(row)
         self.endRemoveRows()
 
     def clear(self):

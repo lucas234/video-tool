@@ -209,6 +209,11 @@ def open_dir(path_):
     os.startfile(path_)
 
 
+def delete_files(path_, *folder):
+    fragments_dir = Path(path_).joinpath(*folder)
+    shutil.rmtree(fragments_dir)
+
+
 @timer
 def is_valid_m3u8_url(url):
     """通过urllib 校验，可能会多耗费时间"""
@@ -384,16 +389,17 @@ if __name__ == "__main__":
     # init_db()
     # s.execute(sq)
     print(s.query("select * from downloadList"))
-    # print(s.execute("delete from downloadList where id = 98"))
+    # print(s.execute("delete from downloadList"))
     # data = s.query("select id from downloadList where status=2")
     # print(data)
     # print(s.execute("delete from downloadList where id in (4,5,6,7,8,9,10,11)"))
-    print(s.execute("update downloadList set status=0 where id =100"))
+    # print(s.execute("update downloadList set status=0 where id =100"))
     # print(get_download_list())
     # print(get_num_of_files(downloads_dir(),"山海情", "第1集"))
     # p = Path(__file__).parent
     # merge_file(downloads_dir(), "山海情","第6集")
     # merge_file2(downloads_dir(), "山海情","第4集")
+    store_data("test","第一集","http",23,450)
 
     # a_hard_function("山海情")
     # a_hard_function("山海情")
