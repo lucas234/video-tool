@@ -13,7 +13,7 @@ import os
 from PyQt5.QtGui import QPalette, QColor
 from functools import partial
 from ui_style import header_style, table_data_style
-from utils import get_icon_dir, Constant, open_dir, get_download_dir
+from utils import Constant, open_dir, get_download_dir
 from search_download import SearchResults, DownloadM3u8
 
 # dark mode
@@ -210,19 +210,19 @@ class ButtonDelegate(QStyledItemDelegate):
             if index.data() == 1:
                 self.signal.emit((name, episode, index.data()))
                 print("开始任务")
-                image = QIcon(get_icon_dir("pause.svg"))
+                image = QIcon(":pause.svg")
                 btn_start_pause.setToolTip("暂停")
             elif index.data() == 0:
                 self.signal.emit((name, episode, index.data()))
                 print("暂停任务")
-                # image = QIcon(get_icon_dir("start.svg"))
+                # image = QIcon(":start.svg")
                 # btn_start_pause.setToolTip("开始")
 
-                image = QIcon(get_icon_dir("pause.svg"))
+                image = QIcon(":pause.svg")
                 btn_start_pause.setToolTip("暂未实现，敬请期待。")
                 btn_start_pause.setDisabled(True)
             else:
-                image = QIcon(get_icon_dir("checkmark.svg"))
+                image = QIcon(":checkmark.svg")
                 btn_start_pause.setToolTip("下载完成")
                 btn_start_pause.setDisabled(True)
             btn_start_pause.setIcon(image)
@@ -232,11 +232,11 @@ class ButtonDelegate(QStyledItemDelegate):
             # print(index.model().index(index.row(),0).data())
 
         if index.data() == 1:
-            image = QIcon(get_icon_dir("start.svg"))
+            image = QIcon(":start.svg")
         elif index.data() == 0:
-            image = QIcon(get_icon_dir("pause.svg"))
+            image = QIcon(":pause.svg")
         else:
-            image = QIcon(get_icon_dir("checkmark.svg"))
+            image = QIcon(":checkmark.svg")
 
         if not self.parent().indexWidget(index):
             btn_start_pause = QPushButton(self.parent())
@@ -267,7 +267,7 @@ class ButtonDelegate(QStyledItemDelegate):
             btn_start_pause.setStyleSheet(style)
             btn_folder = QPushButton(self.parent())
             btn_folder.setIconSize(QSize(20, 20))
-            btn_folder.setIcon(QIcon(get_icon_dir("folder.svg")))
+            btn_folder.setIcon(QIcon(":folder.svg"))
             btn_folder.index = [index.row(), index.column()]
             btn_folder.clicked.connect(partial(open_dir, get_download_dir()))
             btn_folder.setToolTip("打开所在文件夹")
@@ -277,7 +277,7 @@ class ButtonDelegate(QStyledItemDelegate):
 
             btn_delete = QPushButton(self.parent())
             btn_delete.setIconSize(QSize(20, 20))
-            btn_delete.setIcon(QIcon(get_icon_dir("close.svg")))
+            btn_delete.setIcon(QIcon(":close.svg"))
             btn_delete.index = [index.row(), index.column()]
 
             def emit_delete_signal():
@@ -303,14 +303,14 @@ def information(text):
     message_box = QMessageBox()
     message_box.setText(text)
     message_box.setWindowTitle("提示")
-    message_box.setWindowIcon(QIcon(get_icon_dir("information.png")))
+    message_box.setWindowIcon(QIcon(":information.png"))
     message_box.exec_()
 
 
 def warning():
     msg_box = QMessageBox()
     msg_box.setWindowTitle('警告')
-    msg_box.setWindowIcon(QIcon(get_icon_dir("warning.png")))
+    msg_box.setWindowIcon(QIcon(":warning.png"))
     msg_box.setText('是否删除下载记录？')
     yes = msg_box.addButton('确定', QMessageBox.AcceptRole)
     msg_box.addButton('取消', QMessageBox.RejectRole)

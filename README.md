@@ -12,3 +12,7 @@
 
 ###### 将`.ui`文件转换为`.py`文件
 `pyuic5 calc.ui -o calc.py`
+
+### 打包
+`pyinstaller -F --name="工具" --add-data="video_tool.db;."  --windowed --onedir video_tool
+s.py`

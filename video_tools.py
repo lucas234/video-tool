@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QAction, QTableView, QTabWidget, \
 from PyQt5.QtCore import QDir, QUrl, QTimer, pyqtSignal
 from PyQt5.QtGui import QDesktopServices, QBrush, QColor
 import sys
+import resources
 from ui_style import *
 from utils import *
 from ui_utils import *
@@ -67,7 +68,7 @@ class DownloadList(QDialog):
         self.setWindowTitle("下载列表")
         self.setFixedSize(414, 400)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        self.setWindowIcon(QIcon(get_icon_dir("logo.gif")))
+        self.setWindowIcon(QIcon(":logo.gif"))
         self.vbox = QVBoxLayout()
         self.download_manage = QTableView()
         self.download_manage.verticalHeader().setVisible(False)
@@ -228,7 +229,7 @@ class M3U8(QDialog):
         self.setFixedSize(350, 350)
         # 去掉dialog右上角的 ？
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        self.setWindowIcon(QIcon(get_icon_dir("m3u8.png")))
+        self.setWindowIcon(QIcon(":m3u8.png"))
         # self.setStyleSheet('background-color:grey;color:red;')
         main_layout = QVBoxLayout()
         self.tab_widget = QTabWidget()
@@ -315,7 +316,7 @@ class Settings(QDialog):
         self.settings = self.con.query("select modes, path, concurrencyNum, themeStyle from setting")
         self.setWindowTitle("偏好设置")
         self.setFixedSize(400, 400)
-        self.setWindowIcon(QIcon(get_icon_dir("settings.png")))
+        self.setWindowIcon(QIcon(":settings.png"))
         # 去掉dialog右上角的 ？
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.btn_open = QPushButton("")
@@ -432,18 +433,10 @@ class VideoToolsUi(QMainWindow):
         super(VideoToolsUi, self).__init__()
         self._init_ui()
 
-    # def closeEvent(self, QCloseEvent):  # real signature unknown; restored from __doc__
-    #     """ closeEvent(self, QCloseEvent) """
-    #     print("#main window更新数据，关闭App")
-    #     print(download_list_data)
-    #     for key, value in download_list_data.items():
-    #         get_db().execute(f"update downloadList set downloaded='{value[2]}',status=1 where url='{key}'")
-    #     print("###############更新完毕")
-
     def _init_ui(self):
         self.setWindowTitle("Video Tools")
         self.setFixedSize(550, 500)
-        self.setWindowIcon(QIcon(get_icon_dir("logo.gif")))
+        self.setWindowIcon(QIcon(":logo.gif"))
         self.general_layout = QVBoxLayout()
         self.result_layout = QVBoxLayout()
         self.search_layout = QHBoxLayout()
@@ -515,16 +508,16 @@ class VideoToolsUi(QMainWindow):
         menu_bar.addMenu(file_menu)
         menu_bar.addMenu(tool_menu)
         menu_bar.addMenu(help_menu)
-        self.download_list = QAction(QIcon(get_icon_dir("films_list.png")), "下载列表", self)
-        self.settings = QAction(QIcon(get_icon_dir("settings.png")), "设置", self)
-        self.open_file = QAction(QIcon(get_icon_dir("folder-open-film.png")), "打开文件夹", self)
-        self.m3u8 = QAction(QIcon(get_icon_dir("m3u8.png")), "M3U8")
-        self.downloader = QAction(QIcon(get_icon_dir("downloader.png")), "下载器")
-        self.version = QAction(QIcon(get_icon_dir("about.png")), "关于", self)
-        self.help = QAction(QIcon(get_icon_dir("help.png")), "帮助", self)
+        self.download_list = QAction(QIcon(":films_list.png"), "下载列表", self)
+        self.settings = QAction(QIcon(":settings.png"), "设置", self)
+        self.open_file = QAction(QIcon(":folder-open-film.png"), "打开文件夹", self)
+        self.m3u8 = QAction(QIcon(":m3u8.png"), "M3U8")
+        self.downloader = QAction(QIcon(":downloader.png"), "下载器")
+        self.version = QAction(QIcon(":about.png"), "关于", self)
+        self.help = QAction(QIcon(":help.png"), "帮助", self)
         tool_menu.addActions([self.m3u8, self.downloader])
-        self.players = tool_menu.addMenu(QIcon(get_icon_dir("disc-blue.png")), "播放器")
-        self.vlc = QAction(QIcon(get_icon_dir("vlc.png")), "VLC")
+        self.players = tool_menu.addMenu(QIcon(":disc-blue.png"), "播放器")
+        self.vlc = QAction(QIcon(":vlc.png"), "VLC")
         self.players.addActions([self.vlc])
         file_menu.addActions([self.settings, self.download_list, self.open_file])
         help_menu.addActions([self.help, self.version])
@@ -547,7 +540,7 @@ class VideoToolsUi(QMainWindow):
         self.search_button.setFixedHeight(25)
         self.search_button.setFixedWidth(90)
         self.search_button.setIconSize(QSize(23, 23))
-        self.search_button.setIcon(QIcon(get_icon_dir("search.png")))
+        self.search_button.setIcon(QIcon(":search.png"))
         self.search_layout.addWidget(self.search_input)
         self.search_layout.addWidget(self.search_button)
 
@@ -582,11 +575,11 @@ class VideoToolsUi(QMainWindow):
             row_num = table_widget.currentRow()
             # column_num = table_widget.currentColumn()
             menu = QMenu()
-            download_all = menu.addAction(QIcon(get_icon_dir("download_all.png")), u'全部下载')
-            download = menu.addAction(QIcon(get_icon_dir("download.png")), u'下载')
-            play = menu.addAction(QIcon(get_icon_dir("play.png")), u'播放')
-            download_list = menu.addAction(QIcon(get_icon_dir("films_list.png")), "下载列表")
-            # copy_link = menu.addAction(QIcon(get_icon_dir("copy.png")), u'复制链接')
+            download_all = menu.addAction(QIcon(":download_all.png"), u'全部下载')
+            download = menu.addAction(QIcon(":download.png"), u'下载')
+            play = menu.addAction(QIcon(":play.png"), u'播放')
+            download_list = menu.addAction(QIcon(":films_list.png"), "下载列表")
+            # copy_link = menu.addAction(QIcon(":copy.png"), u'复制链接')
             # copy_link.setShortcut(QKeySequence.Copy)
             action = menu.exec_(table_widget.mapToGlobal(pos))
             # 显示选中行的数据文本
@@ -636,7 +629,7 @@ class VideoToolsCtrl(object):
                 information("请输入要搜索的影片名")
             else:
                 # 添加loading效果
-                self.loading = LoadingMask(self._view, get_icon_dir("loading.gif"))
+                self.loading = LoadingMask(self._view, ":loading.gif")
                 self.loading.show_loading(self._view)
 
                 def handle_result(result):

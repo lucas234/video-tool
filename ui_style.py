@@ -42,7 +42,7 @@ play_input_style = f'''color:{font_color};font-size:{font_size}px;
                        border-color: gray;
                        padding:1px 1px;
                     '''
-play_btn_style = '''QPushButton{ border-image:url(assets/player.png);
+play_btn_style = '''QPushButton{ border-image:url(:player.png);
                                  border-radius:4px;
                                  padding: 2px 2px;
                                  border: 2px;
@@ -50,7 +50,7 @@ play_btn_style = '''QPushButton{ border-image:url(assets/player.png);
                                  }'''
 # background-color:#fffcff;
 
-download_btn_style = '''QPushButton{ border-image:url(assets/play-download.png);
+download_btn_style = '''QPushButton{ border-image:url(:play-download.png);
                                  border-radius:4px;
                                  padding: 2px 2px;
                                  border: 2px;
@@ -90,17 +90,17 @@ combobox_style = '''
                       border-bottom-right-radius: 3px;
                      }
                     QComboBox::down-arrow {
-                      image: url(assets/down.png);
+                      image: url(:down.png);
                      }
                     QComboBox::down-arrow:on { /* shift the arrow when popup is open */
-                      image: url(assets/right.png);
+                      image: url(:right.png);
                       top: 1px;
                       left: 1px;
                      }
                     '''
 
 # settings
-btn_open_style = '''QPushButton{ border-image:url(assets/file.png);
+btn_open_style = '''QPushButton{ border-image:url(:file.png);
                                  border-radius:4px;
                                  padding: 2px 2px;
                                  border: 2px;
