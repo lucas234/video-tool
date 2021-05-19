@@ -68,7 +68,7 @@ class DownloadList(QDialog):
         self.setWindowTitle("下载列表")
         self.setFixedSize(414, 400)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        self.setWindowIcon(QIcon(":logo.gif"))
+        self.setWindowIcon(QIcon(":logo.ico"))
         self.vbox = QVBoxLayout()
         self.download_manage = QTableView()
         self.download_manage.verticalHeader().setVisible(False)
@@ -299,6 +299,7 @@ class M3U8(QDialog):
             if player.lower() == 'vlc':
                 print("open the film with vlc")
                 play_task(self, url)
+                QApplication.processEvents()
             else:
                 print(Constant.PLAYERS[player] + url)
                 # http://chyd-sn.wasu.tv/tbvideo/20141108/a5715565-44de-43ff-864d-2e8c5011e361.m3u8
@@ -436,7 +437,7 @@ class VideoToolsUi(QMainWindow):
     def _init_ui(self):
         self.setWindowTitle("Video Tools")
         self.setFixedSize(550, 500)
-        self.setWindowIcon(QIcon(":logo.gif"))
+        self.setWindowIcon(QIcon(":logo.ico"))
         self.general_layout = QVBoxLayout()
         self.result_layout = QVBoxLayout()
         self.search_layout = QHBoxLayout()
@@ -473,6 +474,7 @@ class VideoToolsUi(QMainWindow):
     def _vlc(self):
         print("open the vlc player")
         play_task(self)
+        QApplication.processEvents()
 
     @staticmethod
     def _help():
