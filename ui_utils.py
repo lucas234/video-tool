@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionProgressBar, \
     QApplication, QStyle, QMessageBox, QWidget, QAbstractItemView, QMainWindow, QLabel, QHBoxLayout, QDesktopWidget, \
     QPushButton, QItemDelegate, QToolTip, QCheckBox
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QProcess
 import os
 from PyQt5.QtGui import QPalette, QColor
 from functools import partial
@@ -483,11 +483,11 @@ class PlayerThread(QtCore.QThread):
 
     def run(self):
         # Rewrite run Time-consuming background tasks can be run here
-        command = get_root_dir().joinpath("dependencies",Constant.PLAYERS[self.player])
+        command = get_root_dir().joinpath(Constant.PLAYERS[self.player])
         if self.link:
-            os.system(f'"{str(command)} {self.link}"')
+            os.popen(f'"{str(command)} {self.link}"')
         else:
-            os.system(f'"{str(command)}"')
+            os.popen(f'"{str(command)}"')
         # After the task is completed, send a signal
         self.signal.emit("start a task")
 

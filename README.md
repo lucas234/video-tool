@@ -14,5 +14,6 @@
 `pyuic5 calc.ui -o calc.py`
 
 ### 打包
-`pyinstaller -F --name="工具" --add-data="video_tool.db;."  --windowed --onedir video_tool
-s.py`
+`pyinstaller -F --name="工具" --add-data="video_tool.db;." --add-data="dependencies;." --i
+con=icon.ico --noconsole  --windowed --onedir video_tools.py
+`
