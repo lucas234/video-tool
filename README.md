@@ -27,7 +27,7 @@
 - 下载文件：[videoTool.zip](https://github.com/lucas234/videoTool/releases/tag/videoTool-1.0)
 - 解压`videoTool.zip`，在解压后的文件夹中打开`videoTool.exe`
 
-#### :monkey:本地运行
+#### :monkey: 本地运行
 1.克隆代码到本地`git clone git@github.com:lucas234/videoTool.git`
 
 2.安装依赖库`pip install -r requirements.txt`
