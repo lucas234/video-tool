@@ -14,3 +14,4 @@
 
 ###### 5.将`.ui`文件转换为`.py`文件
 `pyuic5 calc.ui -o calc.py`
+
