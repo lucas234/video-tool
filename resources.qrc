@@ -1,0 +1,43 @@
+<!DOCTYPE RCC>
+   <RCC version="1.0">
+       <qresource>
+           <file alias='about.png'>assets/about.png</file>
+           <file alias='browser.png'>assets/browser.png</file>
+           <file alias='checkmark.svg'>assets/checkmark.svg</file>
+           <file alias='close.svg'>assets/close.svg</file>
+           <file alias='copy.png'>assets/copy.png</file>
+           <file alias='disc-blue.png'>assets/disc-blue.png</file>
+           <file alias='done.svg'>assets/done.svg</file>
+           <file alias='down.png'>assets/down.png</file>
+           <file alias='download.png'>assets/download.png</file>
+           <file alias='downloader.png'>assets/downloader.png</file>
+           <file alias='download_all.png'>assets/download_all.png</file>
+           <file alias='drive-disc-blue.png'>assets/drive-disc-blue.png</file>
+           <file alias='file.png'>assets/file.png</file>
+           <file alias='films_list.png'>assets/films_list.png</file>
+           <file alias='folder-open-film.png'>assets/folder-open-film.png</file>
+           <file alias='folder.svg'>assets/folder.svg</file>
+           <file alias='help.png'>assets/help.png</file>
+           <file alias='information.png'>assets/information.png</file>
+           <file alias='loader.gif'>assets/loader.gif</file>
+           <file alias='loading.gif'>assets/loading.gif</file>
+           <file alias='logo.ico'>assets/logo.ico</file>
+           <file alias='m3u8.png'>assets/m3u8.png</file>
+           <file alias='pause.svg'>assets/pause.svg</file>
+           <file alias='play-download.png'>assets/play-download.png</file>
+           <file alias='play.png'>assets/play.png</file>
+           <file alias='player.png'>assets/player.png</file>
+           <file alias='right.png'>assets/right.png</file>
+           <file alias='search.png'>assets/search.png</file>
+           <file alias='search2.png'>assets/search2.png</file>
+           <file alias='settings.png'>assets/settings.png</file>
+           <file alias='start.svg'>assets/start.svg</file>
+           <file alias='television--arrow.png'>assets/television--arrow.png</file>
+           <file alias='television.png'>assets/television.png</file>
+           <file alias='trash.png'>assets/trash.png</file>
+           <file alias='trash.svg'>assets/trash.svg</file>
+           <file alias='up.png'>assets/up.png</file>
+           <file alias='vlc.png'>assets/vlc.png</file>
+           <file alias='warning.png'>assets/warning.png</file>
+       </qresource>
+   </RCC>
