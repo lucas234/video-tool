@@ -18,10 +18,14 @@
 - **播放视频:支持播放M3U8类型的url、以及其他[VLC](https://www.videolan.org/) 支持格式的视频（内嵌[VLC](https://www.videolan.org/) 的播放器）**
 - **下载视频:支持下载M3U8类型的url，可以搜索影片，选择下载**
 
-#### 🐒 直接运行
-1.下载文件：[地址](https://github.com/lucas234/videoTool/releases/tag/videoTool-1.0)
+#### :monkey: 直接运行
+第一种：
+- 下载文件：[videoTool.exe](https://github.com/lucas234/videoTool/releases/tag/videoTool-1.0)
+- 直接安装`videoTool.exe`文件
 
-2.解压，打开`videoTool.exe`即可
+第二种：
+- 下载文件：[videoTool.zip](https://github.com/lucas234/videoTool/releases/tag/videoTool-1.0)
+- 解压`videoTool.zip`，在解压后的文件夹中打开`videoTool.exe`
 
 #### :monkey: 本地运行
 1.克隆代码到本地`git clone git@github.com:lucas234/videoTool.git`
