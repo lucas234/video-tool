@@ -23,8 +23,7 @@ class SearchResults(object):
         self.wd = wd
         self.query_string = {"wd": wd}
         self.headers = {'Content-Type': 'application/json'}
-        self.url = "http://cj.bajiecaiji.com/inc/feifei3bjm3u8/index.php"
-        # http://cj.1886zy.co/inc/feifei3/index.php?wd=哪吒
+        self.url = "http://cj.1886zy.co/inc/feifei3/index.php"
         # http://www.123ku.com/inc/feifei/index.php?wd=哪吒
 
     @property
