@@ -1,11 +1,14 @@
 ##### videoTool
 
-[QtDesigner用法](docs/designer.md)
-
-[resources文件](docs/resources.md)
 
 #### 打包
 `python package.py`
+
+#### pyqt5 总结
+
+[QtDesigner用法](docs/designer.md) 
+
+[resources文件用法](docs/resources.md)
 
 #### 参考
 1. pyinstaller
