@@ -1,6 +1,7 @@
 ##### videoTool
 
 [QtDesigner用法](docs/designer.md)
+
 [resources文件](docs/resources.md)
 
 #### 打包
