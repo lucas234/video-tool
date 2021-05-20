@@ -6,9 +6,9 @@
 from PyQt5.QtGui import QIcon, QFontMetrics, QFont, QMovie, QMoveEvent
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyleOptionProgressBar, \
     QApplication, QStyle, QMessageBox, QWidget, QAbstractItemView, QMainWindow, QLabel, QHBoxLayout, QDesktopWidget, \
-    QPushButton, QItemDelegate, QToolTip, QCheckBox
+    QPushButton
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QProcess
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
 import os
 from PyQt5.QtGui import QPalette, QColor
 from functools import partial

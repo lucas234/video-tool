@@ -2,4 +2,5 @@ PyQt5==5.15.2
 PyQtWebEngine==5.12
 pyqt5-tools==5.15.2.3.0.2
 requests
+PyInstaller
 

@@ -8,7 +8,6 @@ import os
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor as Pool
 from functools import partial
-from pathlib import Path
 import json
 from utils import str_2_date, store_data, memorize, downloads_dir
 
@@ -60,6 +59,7 @@ class DownloadM3u8(object):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) "
                              "AppleWebKit/537.36 (KHTML, like Gecko) "
                              "Chrome/69.0.3497.92 Safari/537.36"}
+
     def __init__(self, name, download_path=ROOT_DIR):
         self.name = name
         self.download_path = download_path
@@ -121,7 +121,7 @@ class DownloadM3u8(object):
         results = []
         urls = self.get_ts_urls(url)
         self.episodes_dir = self.download_path.joinpath(self.name, episodes)
-        self.episodes_dir.mkdir(parents=True,exist_ok=True)
+        self.episodes_dir.mkdir(parents=True, exist_ok=True)
         init_num = len(list(self.episodes_dir.iterdir()))
         init_num = init_num - 3 if init_num >= 3 else init_num
         # 保存到数据库
@@ -137,10 +137,10 @@ if __name__ == "__main__":
     # 测试搜索
     # print(SearchResults("哪吒").results)
     # print(SearchResults("山海情").get_json())
-    #测试下载
+    # 测试下载
     # 山海情 https://v5.szjal.cn/20210112/uEqxa53j/index.m3u8  https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8
     # url = "https://n1.szjal.cn/20210402/SSYsYCRM/index.m3u8" # 哪吒
-    url = "https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8"
-    d = DownloadM3u8("山海情", ROOT_DIR)
-    for i in d.concurrent_download(4, url, "第2集"):
-        print(i)
+    # url = "https://v5.szjal.cn/20210112/ebYB5eFk/index.m3u8"
+    # d = DownloadM3u8("山海情", ROOT_DIR)
+    # for i in d.concurrent_download(4, url, "第2集"):
+    #     print(i)

@@ -6,10 +6,10 @@
 # @Software: PyCharm
 from PyQt5.QtWidgets import QVBoxLayout, QAction, QTableView, QTabWidget, \
     QFormLayout, QComboBox, QCheckBox, QDialog, QDialogButtonBox, QSpinBox, \
-    QStyleFactory, QLineEdit, QPushButton, QTableWidget, QMenu, QFileDialog, \
+    QStyleFactory, QLineEdit, QTableWidget, QMenu, QFileDialog, \
     QTableWidgetItem, QHeaderView
-from PyQt5.QtCore import QDir, QUrl, QTimer, pyqtSignal
-from PyQt5.QtGui import QDesktopServices, QBrush, QColor
+from PyQt5.QtCore import QDir, QUrl, QTimer
+from PyQt5.QtGui import QDesktopServices
 import sys
 import resources
 from ui_style import *
