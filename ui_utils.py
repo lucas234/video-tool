@@ -14,7 +14,7 @@ from PyQt5.QtGui import QPalette, QColor
 from functools import partial
 from ui_style import header_style, table_data_style
 from utils import Constant, open_dir, get_download_dir, get_root_dir
-from search_download import SearchResults, DownloadM3u8
+from backend import SearchResults, DownloadM3u8
 
 # dark mode
 WHITE = QColor(255, 255, 255)
