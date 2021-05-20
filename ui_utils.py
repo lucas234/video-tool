@@ -483,7 +483,10 @@ class PlayerThread(QtCore.QThread):
 
     def run(self):
         # Rewrite run Time-consuming background tasks can be run here
-        command = get_root_dir().joinpath(Constant.PLAYERS[self.player])
+        if get_root_dir().joinpath("dependencies").exists():
+            command = get_root_dir().joinpath("dependencies", Constant.PLAYERS[self.player])
+        else:
+            command = get_root_dir().joinpath(Constant.PLAYERS[self.player])
         if self.link:
             os.popen(f'"{str(command)} {self.link}"')
         else:

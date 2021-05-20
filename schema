@@ -1,23 +1,35 @@
-create table IF NOT EXISTS setting(
-    id integer PRIMARY KEY autoincrement,
-    modes integer,
-    path varchar,
-    concurrency_num integer,
-    theme_style varchar,
-    create_date datetime default (datetime('now', 'localtime')),
-    update_date datetime
-);
+ create table IF NOT EXISTS downloadList(
+                    id integer PRIMARY KEY autoincrement,
+                    name varchar,
+                    episode varchar,
+                    url varchar,
+                    downloaded integer default (0),
+                    total integer,
+                    status integer default (0),
+                    createDate datetime default (datetime('now', 'localtime')),
+                    updateDate datetime
+                );
 
 create table IF NOT EXISTS resource(
-    id integer PRIMARY KEY autoincrement,
-    name varchar not null,
-    data JSON,
-    expire varchar,
-    isActive bool default (1),
-    createDate datetime default (datetime('now', 'localtime')),
-    updateDate datetime
-);
+                    id integer PRIMARY KEY autoincrement,
+                    name varchar not null,
+                    data JSON,
+                    sig varchar UNIQUE,
+                    expire varchar default ('1 d'),
+                    isActive bool default (1),
+                    createDate datetime default (datetime('now', 'localtime')),
+                    updateDate datetime
+                );
 
+create table IF NOT EXISTS setting(
+                    id integer PRIMARY KEY autoincrement,
+                    modes integer,
+                    path varchar,
+                    concurrencyNum integer,
+                    themeStyle varchar,
+                    createDate datetime default (datetime('now', 'localtime')),
+                    updateDate datetime
+                );
 
 -- 用来重命名已有的表的 ALTER TABLE 的基本语法如下：
 ALTER TABLE resource RENAME TO resource;
@@ -25,5 +37,6 @@ ALTER TABLE resource RENAME TO resource;
 ALTER TABLE resource ADD COLUMN cache_sig varchar;
 
 -- 插入语句
+insert into setting(modes,path,concurrencyNum,themeStyle) values(0,'{downloads_dir()}',8,'Fusion')
 insert into resource(name,data,cache_sig) values('哪吒3', 'test', '12123213')
 insert into resource values(3, '哪吒3', 'test', '','', '')

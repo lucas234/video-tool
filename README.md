@@ -1,8 +1,6 @@
 
 ####打包
-`pyinstaller --name="工具" --add-data="video_tool.db;." --add-data="dependencies;." --icon=icon.ico --noconsole  --windowed --onedir video_tools.py`
-
-[test](docs/resources.md)
+`python package.py`
 
 ####参考
 1. pyinstaller

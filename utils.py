@@ -32,7 +32,7 @@ def timer(func):
 class Constant(object):
     # m3u8 播放器
     PLAYERS = {
-        "VLC": r"vlc-3.0.12-win32\vlc-3.0.12\vlc.exe",
+        "VLC": r"vlc\vlc.exe",
         "6029解析": "https://www.dplayer.tv/?url=",
         "默认解析": "https://api.69ne.com/?url=",
         "思古解析": "https://api.sigujx.com/?url=",
