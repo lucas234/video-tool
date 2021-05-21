@@ -1,4 +1,4 @@
-#### videoTool
+#### :monkey: videoTool
 ![](https://img.shields.io/badge/Python-3.8.5-green.svg) ![](https://img.shields.io/badge/requests-2.25.1-green.svg) ![](https://img.shields.io/badge/pyqt5-5.15.2-green.svg) ![](https://img.shields.io/badge/pyinstaller-4.3-green.svg)
 
 |Author|:sunglasses:lucas234:sunglasses:|
@@ -6,10 +6,10 @@
 |Email|:hearts:ly_liubo@163.com:hearts:|
 
 ****
-#### :monkey:声明
+#### :monkey: 声明
 **软件均仅用于学习交流，请勿用于任何商业用途！感谢大家！**
 
-#### :monkey:介绍
+#### :monkey: 介绍
 本来只是想写一个简单的下载`M3U8`链接为`mp4`格式的工具，结果写着写着又添加了一些额外的功能，
 也算是用来学习代码了，里边还有一些功能没有实现，后续有时间了会优化的，想写一个Android版本的，
 这样就可以用来方便一点了。。。
@@ -34,16 +34,16 @@
 
 3.直接运行`video_tools.py`文件或者运行`package.py` 打包
 
-#### :monkey:运行截图
+#### :monkey: 运行截图
 ![running](running.gif)
 
 ![function](function.gif)
 
-#### :monkey:**总结**
+#### :monkey: **总结**
 > **最后，如果你觉得这个项目不错或者对你有帮助，给个Star呗，也算是对我学习路上的一种鼓励！<br>
 >  哈哈哈，感谢大家！笔芯哟~**:cupid::cupid:
 
-#### :monkey:参考
+#### :monkey: 参考
 1. pyinstaller
    - https://pyinstaller.readthedocs.io/en/stable/usage.html
    - https://www.mfitzp.com/tutorials/packaging-pyqt5-pyside2-applications-windows-pyinstaller/
