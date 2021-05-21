@@ -43,11 +43,6 @@
 > **最后，如果你觉得这个项目不错或者对你有帮助，给个Star呗，也算是对我学习路上的一种鼓励！<br>
 >  哈哈哈，感谢大家！笔芯哟~**:cupid::cupid:
 
-#### :monkey:pyqt5总结
-[QtDesigner用法](docs/designer.md) 
-
-[resources文件用法](docs/resources.md)
-
 #### :monkey:参考
 1. pyinstaller
    - https://pyinstaller.readthedocs.io/en/stable/usage.html
